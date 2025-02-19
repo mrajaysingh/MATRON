@@ -26,6 +26,7 @@ import {
   MoreVertical,
 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import AnimatedLogo from '../components/AnimatedLogo';
 
 const menuItems = [
   { id: 'dashboard', icon: Layout, label: 'Dashboard' },
@@ -427,12 +428,10 @@ export default function AdminDashboard() {
         <div className={`flex flex-col h-full ${!isMobile && !isSidebarOpen && 'md:items-center'}`}>
           <div className={`p-6 border-b dark:border-gray-700 ${!isMobile && !isSidebarOpen && 'md:p-4'}`}>
             <div className={`flex items-center space-x-4 ${!isMobile && !isSidebarOpen && 'md:justify-center'}`}>
-              <div className="relative">
-                <img
-                  src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&q=80&w=100&h=100"
-                  alt="Profile"
-                  className="w-12 h-12 rounded-full object-cover border-2 border-gray-200 dark:border-gray-600"
-                />
+              <div className="relative flex items-center">
+                <div className="w-12 h-12 flex items-center justify-center">
+                  <AnimatedLogo isDarkMode={false} />
+                </div>
                 <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white dark:border-gray-800"></div>
               </div>
               <div className={`transition-opacity duration-200 ${!isMobile && !isSidebarOpen ? 'opacity-0 md:hidden' : 'opacity-100'}`}>
@@ -505,7 +504,12 @@ export default function AdminDashboard() {
                   isSidebarOpen && isMobile ? 'rotate-90' : 'rotate-0'
                 }`} />
               </button>
-              <h1 className="text-xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 flex items-center justify-center">
+                  <AnimatedLogo isDarkMode={false} />
+                </div>
+                <h1 className="text-xl font-bold text-gray-800 dark:text-white">Dashboard</h1>
+              </div>
             </div>
 
             <div className="flex items-center space-x-2 sm:space-x-4">

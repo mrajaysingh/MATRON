@@ -11,6 +11,7 @@ import PreLoader from './components/PreLoader';
 import { ProjectCardLoader, AboutLoader, SkillsLoader, ContactLoader } from './components/ContentLoaders';
 import NotFound from './components/NotFound';
 import CustomCursor from './components/CustomCursor';
+import ScrollToTopButton from './components/ScrollToTopButton';
 
 const menuItems = ['Home', 'About', 'Portfolio', 'Service', 'News', 'Contact'];
 
@@ -34,6 +35,8 @@ function MainLayout() {
     github: string;
     preview: string;
   }>(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [showScrollButton, setShowScrollButton] = useState(false);
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkTheme);
@@ -74,12 +77,22 @@ function MainLayout() {
   };
 
   const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-    const scrollTop = e.currentTarget.scrollTop;
-    const sections = e.currentTarget.querySelectorAll('section[data-section]');
+    const container = e.currentTarget;
+    const scrollTop = container.scrollTop;
+    const scrollHeight = container.scrollHeight;
+    const clientHeight = container.clientHeight;
+    
+    // Calculate scroll progress
+    const progress = scrollTop / (scrollHeight - clientHeight);
+    setScrollProgress(progress);
+    
+    // Show/hide scroll button - Changed threshold to 50px
+    setShowScrollButton(scrollTop > 50); // Changed from clientHeight/2 to 50
     
     setIsScrolled(scrollTop > 100);
 
     // Find current section
+    const sections = container.querySelectorAll('section[data-section]');
     sections.forEach((section) => {
       const rect = section.getBoundingClientRect();
       if (rect.top <= 100 && rect.bottom >= 100) {
@@ -103,25 +116,62 @@ function MainLayout() {
     }, 500);
   };
 
+  const scrollToContact = () => {
+    setIsPageLoading(true); // Show preloader
+    setActiveItem('Contact');
+    setIsInitialLoading(true); // Reset initial loading state
+    
+    // First show the page transition loader
+    setTimeout(() => {
+      setIsPageLoading(false);
+      // Then show content loader
+      setTimeout(() => {
+        setIsInitialLoading(false);
+        // After content is loaded, scroll to contact section
+        const contactSection = document.querySelector('[data-section="Get in Touch"]');
+        if (contactSection) {
+          contactSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 1500); // Show content loader for 1.5s
+    }, 500); // Show page transition loader for 0.5s
+  };
+
+  const scrollToTop = () => {
+    const container = document.querySelector('.scroll-smooth');
+    if (container) {
+      container.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    }
+  };
+
   const contentComponents: { [key: string]: React.ReactNode } = {
     Home: (
       <div className="space-y-8 md:space-y-16">
         {/* Hero Section */}
         <section data-section="Home" className="min-h-[30vh] md:h-[calc(100vh-16rem)] flex flex-col justify-center">
-          <div className="max-w-xl">
+          <div className="max-w-xl space-y-6">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-3xl md:text-5xl lg:text-7xl font-bold tracking-tight mb-3 md:mb-4 dark:text-white"
+              className="text-[31px] md:text-5xl lg:text-7xl font-bold tracking-tight dark:text-white"
+              style={{ 
+                fontFamily: 'Researcher',
+                fontWeight: 700,
+                letterSpacing: '-0.02em',
+                lineHeight: 1.1
+              }}
             >
               AJAY SINGH
             </motion.h1>
-            <motion.p 
+
+            <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.2 }}
-              className="text-xl md:text-2xl text-gray-600 dark:text-gray-300 italic mb-8"
+              className="text-xl md:text-2xl text-gray-600 dark:text-gray-300"
             >
               I'm a <TypewriterText 
                 texts={[
@@ -135,17 +185,25 @@ function MainLayout() {
                 deletingSpeed={40}
                 pauseDuration={2000}
               />
-            </motion.p>
+            </motion.div>
+
             <motion.div 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4 sm:space-x-4"
+              className="flex flex-col sm:flex-row gap-4"
             >
-              <button className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-8 py-4 text-lg font-medium rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all duration-300 transform hover:scale-105">
+              <button 
+                onClick={scrollToContact}
+                className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-8 py-3.5 text-base rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+                style={{ fontFamily: 'Researcher', fontWeight: 400 }}
+              >
                 Get in Touch
               </button>
-              <button className="w-full sm:w-auto border-2 border-black dark:border-white text-black dark:text-white px-8 py-4 text-lg font-medium rounded-lg hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300">
+              <button 
+                className="w-full sm:w-auto border-2 border-black dark:border-white text-black dark:text-white px-8 py-3.5 text-base rounded-lg hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
+                style={{ fontFamily: 'Researcher', fontWeight: 400 }}
+              >
                 Download CV
               </button>
             </motion.div>
@@ -544,13 +602,13 @@ function MainLayout() {
                 transition={{ duration: 0.5, delay: index * 0.1 }}
                 className="group relative overflow-hidden rounded-lg shadow-lg"
               >
-                  <div className="relative h-48">
+                  <div className="relative w-full h-full">
               <img
                 src={project.image}
                 alt={project.title}
-                      className="w-full h-full object-cover grayscale transition-transform duration-300 group-hover:scale-110"
+                      className="w-full h-full object-cover grayscale"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 mix-blend-multiply"></div>
+                    <div className="absolute inset-0 bg-black bg-opacity-30" />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10 opacity-100 flex flex-col justify-end p-4 transition-opacity duration-300">
                     <h3 className="text-white font-semibold text-lg">{project.title}</h3>
@@ -656,13 +714,13 @@ function MainLayout() {
                   transition={{ duration: 0.5, delay: index * 0.1 }}
                   className="group relative overflow-hidden rounded-lg shadow-lg"
                 >
-                  <div className="relative h-48">
+                  <div className="relative w-full h-full">
                     <img
                       src={project.image}
                       alt={project.title}
-                      className="w-full h-full object-cover grayscale transition-transform duration-300 group-hover:scale-110"
+                      className="w-full h-full object-cover grayscale"
                     />
-                    <div className="absolute inset-0 bg-black bg-opacity-40 mix-blend-multiply"></div>
+                    <div className="absolute inset-0 bg-black bg-opacity-30" />
                   </div>
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-black/10 opacity-100 flex flex-col justify-end p-4 transition-opacity duration-300">
                     <h3 className="text-white font-semibold text-lg">{project.title}</h3>
@@ -794,7 +852,10 @@ function MainLayout() {
                 className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
               ></textarea>
             </div>
-            <button className="w-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors">
+            <button 
+              className="w-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors"
+              style={{ fontFamily: 'Researcher', fontWeight: 400 }}
+            >
               Send Message
             </button>
           </form>
@@ -835,16 +896,16 @@ function MainLayout() {
       {/* Header - Updated for mobile */}
       <header className="bg-white dark:bg-gray-900 z-50 px-3 sm:px-4 md:px-8 py-3 border-b dark:border-gray-800 transition-colors duration-200 sticky top-0 rounded-b-xl">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
-          {/* Logo - Made smaller on mobile */}
+          {/* Logo - Adjusted alignment */}
           <div className="flex items-center space-x-2">
             <button 
               onClick={() => handlePageChange('Home')} 
               className="flex items-center space-x-2 hover:opacity-80 transition-opacity"
             > 
-              <div className="w-8 h-8 sm:w-10 sm:h-10">
-            <AnimatedLogo isDarkMode={isDarkTheme} />
+              <div className="w-8 h-8 flex items-center">
+                <AnimatedLogo isDarkMode={isDarkTheme} />
               </div>
-              <div className="text-lg sm:text-xl md:text-2xl font-bold tracking-wider dark:text-white">
+              <div className="text-lg sm:text-xl md:text-2xl font-normal tracking-wider dark:text-white" style={{ fontFamily: 'Stardock' }}>
                 MATRON
               </div>
             </button>
@@ -852,7 +913,8 @@ function MainLayout() {
           
           {/* Adjusted header buttons spacing */}
           <div className="flex items-center space-x-2 sm:space-x-4">
-            <nav className="hidden md:flex space-x-4 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+            {/* Navigation Menu */}
+            <nav className="hidden md:flex space-x-2 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
               {menuItems.map((item) => (
                 <button
                   key={item}
@@ -862,6 +924,11 @@ function MainLayout() {
                       ? 'active' 
                       : 'text-gray-700 hover:text-black dark:text-gray-400 dark:hover:text-gray-200'
                   }`}
+                  style={{ 
+                    fontFamily: 'Researcher',
+                    fontWeight: 400,
+                    fontSize: '0.8rem'
+                  }}
                 >
                   {item}
                 </button>
@@ -871,6 +938,7 @@ function MainLayout() {
             <button
               onClick={() => setIsDarkTheme(!isDarkTheme)}
               className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              style={{ fontFamily: 'Researcher', fontWeight: 400 }}
             >
               {isDarkTheme ? (
                 <Sun className="w-5 h-5 text-white" />
@@ -882,13 +950,14 @@ function MainLayout() {
             <button
               className="md:hidden p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
               onClick={toggleMobileMenu}
+              style={{ fontFamily: 'Researcher', fontWeight: 400 }}
             >
               <Menu className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700 dark:text-gray-300" />
             </button>
           </div>
         </div>
 
-        {/* Mobile Navigation - Improved spacing */}
+        {/* Mobile Navigation */}
         <motion.div
           initial={false}
           animate={{ height: isMobileMenuOpen ? 'auto' : 0 }}
@@ -907,6 +976,10 @@ function MainLayout() {
                     ? 'bg-black text-white dark:bg-white dark:text-black'
                     : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
                 }`}
+                style={{ 
+                  fontFamily: 'Researcher',
+                  fontWeight: 400
+                }}
               >
                 {item}
               </button>
@@ -924,16 +997,14 @@ function MainLayout() {
             <div className="w-full h-[45vh] relative">
               <div className="absolute inset-0">
                 <div className="relative w-full h-full">
-                <img
-                  src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80"
-                  alt="Portrait"
-                  className="w-full h-full object-cover grayscale"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-30 mix-blend-multiply">
-                    {!hideParticles && <ParticlesBackground />}
-                  </div>
+                  <img
+                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80"
+                    alt="Portrait"
+                    className="w-full h-full object-cover grayscale"
+                    loading="eager"
+                    fetchPriority="high"
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-30" />
                 </div>
               </div>
             </div>
@@ -972,11 +1043,12 @@ function MainLayout() {
                     loading="eager"
                     fetchPriority="high"
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-30 mix-blend-multiply">
-                    {!hideParticles && activeItem === 'Home' && (
+                  <div className="absolute inset-0 bg-black bg-opacity-30" />
+                  {!hideParticles && (
+                    <div className="absolute inset-0 z-10">
                       <ParticlesBackground />
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
@@ -1047,6 +1119,15 @@ function MainLayout() {
             </div>
           </div>
         </div>
+
+        {/* Add ScrollToTopButton */}
+        {activeItem !== 'Home' && (
+          <ScrollToTopButton 
+            progress={scrollProgress}
+            onClick={scrollToTop}
+            isVisible={showScrollButton}
+          />
+        )}
 
         {/* Desktop Footer - Fixed at bottom */}
         <footer className="hidden md:block fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-800 px-8 py-4 transition-colors duration-200 z-10 rounded-t-xl">

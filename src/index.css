@@ -1,3 +1,49 @@
+@font-face {
+  font-family: 'Researcher';
+  src: url('/font/Name/otf/researcher-researcher-thin-200.otf') format('opentype'),
+       url('/font/Name/ttf/researcher-researcher-thin-200.ttf') format('truetype');
+  font-weight: 200;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Researcher';
+  src: url('/font/Name/otf/researcher-researcher-regular-400.otf') format('opentype'),
+       url('/font/Name/ttf/researcher-researcher-regular-400.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Researcher';
+  src: url('/font/Name/otf/researcher-researcher-bold-700.otf') format('opentype'),
+       url('/font/Name/ttf/researcher-researcher-bold-700.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Researcher-Squid';
+  src: url('/font/Name/otf/researcher-researcher-squid-700.otf') format('opentype'),
+       url('/font/Name/ttf/researcher-researcher-squid-700.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Stardock';
+  src: url('/font/Logo/Stardock.otf') format('opentype'),
+       url('/font/Logo/Stardock WOFF/Stardock.woff') format('woff'),
+       url('/font/Logo/Stardock.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -6,11 +52,38 @@
   body {
     @apply antialiased;
   }
+
+  button {
+    font-family: 'Researcher', sans-serif;
+    font-weight: 400;
+  }
+
+  /* Add heading styles */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Researcher', sans-serif;
+  }
+
+  /* Specific heading weights */
+  h1 {
+    font-weight: 700;
+  }
+
+  h2 {
+    font-weight: 700;
+  }
+
+  h3 {
+    font-weight: 400;
+  }
+
+  h4, h5, h6 {
+    font-weight: 400;
+  }
 }
 
 @layer components {
   .nav-item {
-    @apply relative uppercase text-sm tracking-wider font-medium px-4 py-2 rounded-lg transition-all duration-300 ease-in-out;
+    @apply relative uppercase text-xs tracking-wide px-3 py-3 rounded-lg transition-all duration-300 ease-in-out;
   }
 
   .nav-item::after {
@@ -24,6 +97,12 @@
 
   .nav-item.active {
     @apply bg-black dark:bg-white text-white dark:text-black;
+  }
+}
+
+@layer utilities {
+  .font-researcher {
+    font-family: 'Researcher', sans-serif;
   }
 }
 
