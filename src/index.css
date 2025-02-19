@@ -47,3 +47,23 @@
   -ms-overflow-style: none;  /* IE and Edge */
   scrollbar-width: none;  /* Firefox */
 }
+
+/* Show default cursor on touch devices */
+@media (hover: none) {
+  .custom-cursor-outer,
+  .custom-cursor-inner {
+    display: none !important;
+  }
+}
+
+/* Keep default cursor for input elements */
+input, 
+textarea, 
+[contenteditable] {
+  cursor: text;
+}
+
+/* Keep default cursor for select elements */
+select {
+  cursor: default;
+}
