@@ -151,12 +151,12 @@ function MainLayout() {
       <div className="space-y-8 md:space-y-16">
         {/* Hero Section */}
         <section data-section="Home" className="min-h-[30vh] md:h-[calc(100vh-16rem)] flex flex-col justify-center">
-          <div className="max-w-xl space-y-6">
+          <div className="max-w-xl space-y-3">
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
-              className="text-[31px] md:text-5xl lg:text-7xl font-bold tracking-tight dark:text-white"
+              className="text-[40px] md:text-5xl lg:text-7xl font-bold tracking-tight dark:text-white"
               style={{ 
                 fontFamily: 'Researcher',
                 fontWeight: 700,
@@ -187,26 +187,28 @@ function MainLayout() {
               />
             </motion.div>
 
-            <motion.div 
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-              className="flex flex-col sm:flex-row gap-4"
-            >
-              <button 
-                onClick={scrollToContact}
-                className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-8 py-3.5 text-base rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
-                style={{ fontFamily: 'Researcher', fontWeight: 400 }}
+            <div className="pt-3">
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.4 }}
+                className="flex flex-col sm:flex-row gap-4"
               >
-                Get in Touch
-              </button>
-              <button 
-                className="w-full sm:w-auto border-2 border-black dark:border-white text-black dark:text-white px-8 py-3.5 text-base rounded-lg hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
-                style={{ fontFamily: 'Researcher', fontWeight: 400 }}
-              >
-                Download CV
-              </button>
-            </motion.div>
+                <button 
+                  onClick={scrollToContact}
+                  className="w-full sm:w-auto bg-black dark:bg-white text-white dark:text-black px-8 py-3.5 text-base rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-all duration-300 transform hover:scale-105"
+                  style={{ fontFamily: 'Researcher', fontWeight: 400 }}
+                >
+                  Get in Touch
+                </button>
+                <button 
+                  className="w-full sm:w-auto border-2 border-black dark:border-white text-black dark:text-white px-8 py-3.5 text-base rounded-lg hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
+                  style={{ fontFamily: 'Researcher', fontWeight: 400 }}
+                >
+                  Download CV
+                </button>
+              </motion.div>
+            </div>
           </div>
         </section>
       </div>
@@ -1011,7 +1013,7 @@ function MainLayout() {
           )}
 
           {/* Mobile Content Section */}
-          <div className={`flex-1 bg-gray-50 dark:bg-gray-800 p-4 pb-16 ${activeItem !== 'Home' ? 'pt-4' : 'pt-2'}`}>
+          <div className={`flex-1 bg-gray-50 dark:bg-gray-800 p-4 pb-16 ${activeItem !== 'Home' ? 'pt-4' : 'pt-7'}`}>
             {/* Content with adjusted padding */}
             <div className="space-y-4">
               {isPageLoading ? (
@@ -1173,9 +1175,22 @@ function MainLayout() {
 }
 
 function App() {
+  const [isMobileDevice, setIsMobileDevice] = useState(false);
+
+  useEffect(() => {
+    // Check if it's a mobile device
+    const checkMobile = () => {
+      setIsMobileDevice(window.innerWidth < 768 || 'ontouchstart' in window);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
   return (
     <Router>
-      <CustomCursor />
+      {!isMobileDevice && <CustomCursor />} {/* Only show on non-mobile devices */}
       <Routes>
         <Route path="/" element={<MainLayout />} />
         <Route path="/matron" element={<AdminLogin />} />

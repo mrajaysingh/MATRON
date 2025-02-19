@@ -127,11 +127,15 @@
   scrollbar-width: none;  /* Firefox */
 }
 
-/* Show default cursor on touch devices */
-@media (hover: none) {
+/* Update the existing custom cursor CSS */
+@media (hover: none) and (pointer: coarse), (max-width: 768px) {
   .custom-cursor-outer,
   .custom-cursor-inner {
     display: none !important;
+  }
+  
+  * {
+    cursor: auto !important;
   }
 }
 
