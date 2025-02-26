@@ -606,7 +606,7 @@ function MainLayout() {
               >
                   <div className="relative w-full h-full">
               <img
-                src={project.image}
+                src="/clpfl.jpg"
                 alt={project.title}
                       className="w-full h-full object-cover grayscale"
                     />
@@ -718,7 +718,7 @@ function MainLayout() {
                 >
                   <div className="relative w-full h-full">
                     <img
-                      src={project.image}
+                      src="/clpfl.jpg"
                       alt={project.title}
                       className="w-full h-full object-cover grayscale"
                     />
@@ -1000,7 +1000,7 @@ function MainLayout() {
               <div className="absolute inset-0">
                 <div className="relative w-full h-full">
                   <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80"
+                    src="/clpfl.jpg"
                     alt="Portrait"
                     className="w-full h-full object-cover grayscale"
                     loading="eager"
@@ -1039,7 +1039,7 @@ function MainLayout() {
               <div className="absolute inset-0 m-4 mb-1">
                 <div className="relative w-full h-full rounded-[18px] overflow-hidden">
                   <img
-                    src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80"
+                    src="/clpfl.jpg"
                     alt="Portrait"
                     className="w-full h-full object-cover grayscale"
                     loading="eager"

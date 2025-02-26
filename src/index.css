@@ -150,3 +150,14 @@ textarea,
 select {
   cursor: default;
 }
+
+/* Update the text selection styles with border radius */
+::selection {
+  @apply bg-black/20 dark:bg-white/20 rounded-[10px];
+  border-radius: 10px;  /* Fallback for older browsers */
+}
+
+::-moz-selection {
+  @apply bg-black/20 dark:bg-white/20 rounded-[10px];
+  border-radius: 10px;  /* Fallback for older browsers */
+}
