@@ -606,7 +606,7 @@ function MainLayout() {
               >
                   <div className="relative w-full h-full">
               <img
-                src="/clpfl.jpg"
+                src={project.image}
                 alt={project.title}
                       className="w-full h-full object-cover grayscale"
                     />
@@ -718,7 +718,7 @@ function MainLayout() {
                 >
                   <div className="relative w-full h-full">
                     <img
-                      src="/clpfl.jpg"
+                      src={project.image}
                       alt={project.title}
                       className="w-full h-full object-cover grayscale"
                     />

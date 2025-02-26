@@ -151,13 +151,11 @@ select {
   cursor: default;
 }
 
-/* Update the text selection styles with border radius */
+/* Add these styles for custom text selection */
 ::selection {
-  @apply bg-black/20 dark:bg-white/20 rounded-[10px];
-  border-radius: 10px;  /* Fallback for older browsers */
+  @apply bg-black/20 dark:bg-white/20;
 }
 
 ::-moz-selection {
-  @apply bg-black/20 dark:bg-white/20 rounded-[10px];
-  border-radius: 10px;  /* Fallback for older browsers */
+  @apply bg-black/20 dark:bg-white/20;
 }
