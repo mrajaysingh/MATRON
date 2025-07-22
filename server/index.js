@@ -19,14 +19,23 @@ app.use(express.json());
 // Create mail transporter
 const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
-  port: process.env.SMTP_PORT || 587,
+  port: parseInt(process.env.SMTP_PORT) || 587,
   secure: false,
   auth: {
-    user: process.env.SMTP_USER || '910f2e001@smtp-brevo.com',
-    pass: process.env.SMTP_PASS || '7ZdhfMyNGYr5cz4j',
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASS,
   },
-  headers: {
-    'X-PM-Message-Stream': 'outbound'
+  debug: true, // Enable debug logging
+  logger: true // Enable built-in logger
+});
+
+// Verify SMTP connection on startup
+transporter.verify(function(error, success) {
+  if (error) {
+    console.error('SMTP Connection Error:', error);
+  } else {
+    console.log('SMTP Connection Success:', success);
+    console.log('Mail server is ready to send messages');
   }
 });
 
@@ -37,7 +46,20 @@ const SKYBER_LOGO = 'https://amritanam-s3-bucket.s3.ap-south-1.amazonaws.com/Mat
 // Email sending endpoint
 app.post('/api/send-email', async (req, res) => {
   try {
+    console.log('Received email request:', {
+      name: req.body.name,
+      email: req.body.email,
+      timestamp: new Date().toISOString()
+    });
+
     const { name, email, message } = req.body;
+
+    // Validate required fields
+    if (!name || !email || !message) {
+      console.error('Missing required fields');
+      return res.status(400).json({ error: 'Name, email, and message are required' });
+    }
+
     const now = new Date();
     const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -155,6 +177,16 @@ Powered by SKYBER (https://www.skybersupport.me/)
 </html>
     `.trim();
 
+    // Log mail configuration
+    console.log('Mail configuration:', {
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      user: process.env.SMTP_USER ? '***' : 'not set',
+      pass: process.env.SMTP_PASS ? '***' : 'not set',
+      from: process.env.MAIL_FROM,
+      to: process.env.MAIL_TO
+    });
+
     // Email options with improved configuration for better deliverability
     const mailOptions = {
       from: {
@@ -172,20 +204,37 @@ Powered by SKYBER (https://www.skybersupport.me/)
       headers: {
         'X-Entity-Ref-ID': `matron-${Date.now()}`,
         'List-Unsubscribe': `<mailto:${process.env.MAIL_FROM || 'matron-mail@skybersupport.me'}?subject=unsubscribe>`,
-        'Feedback-ID': 'matron-contact-form:skybersupport:${Date.now()}',
+        'Feedback-ID': `matron-contact-form:skybersupport:${Date.now()}`,
         'X-Priority': '3',
         'Precedence': 'bulk',
         'X-Auto-Response-Suppress': 'OOF, AutoReply'
       }
     };
 
+    console.log('Attempting to send email...');
+    
     // Send email
-    await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail(mailOptions);
+    console.log('Email sent successfully:', info);
 
-    res.status(200).json({ message: 'Email sent successfully' });
+    res.status(200).json({ 
+      message: 'Email sent successfully',
+      messageId: info.messageId 
+    });
   } catch (error) {
     console.error('Error sending email:', error);
-    res.status(500).json({ error: 'Failed to send email' });
+    console.error('Error details:', {
+      code: error.code,
+      command: error.command,
+      response: error.response,
+      responseCode: error.responseCode,
+      stack: error.stack
+    });
+
+    res.status(500).json({ 
+      error: 'Failed to send email',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 
@@ -200,4 +249,12 @@ app.get('*', (req, res) => {
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log('Environment variables loaded:', {
+    SMTP_HOST: process.env.SMTP_HOST ? '***' : 'not set',
+    SMTP_PORT: process.env.SMTP_PORT ? '***' : 'not set',
+    SMTP_USER: process.env.SMTP_USER ? '***' : 'not set',
+    SMTP_PASS: process.env.SMTP_PASS ? '***' : 'not set',
+    MAIL_FROM: process.env.MAIL_FROM ? '***' : 'not set',
+    MAIL_TO: process.env.MAIL_TO ? '***' : 'not set'
+  });
 }); 
