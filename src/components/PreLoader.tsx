@@ -20,7 +20,7 @@ export default function PreLoader() {
 
   return (
     <div 
-      className="fixed inset-0 bg-white dark:bg-gray-900 z-50 flex items-center justify-center select-none"
+      className="fixed inset-0 bg-white dark:bg-black z-50 flex items-center justify-center select-none"
       onContextMenu={handleContextMenu}
     >
       <motion.div 

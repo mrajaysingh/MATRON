@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { Facebook, Twitter, Instagram, Dribbble, BookText as TikTok, Sun, Moon, Mail, Phone, MapPin, Menu, X, Github, ExternalLink, ChevronDown } from 'lucide-react';
+import { Instagram, Sun, Moon, Mail, Phone, MapPin, Menu, X, Github, ExternalLink, ChevronDown, Linkedin } from 'lucide-react';
 import ParticlesBackground from './components/ParticlesBackground';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import AnimatedLogo from './components/AnimatedLogo';
 import TypewriterText from './components/TypewriterText';
 import PreLoader from './components/PreLoader';
@@ -15,10 +15,97 @@ import ScrollToTopButton from './components/ScrollToTopButton';
 
 const menuItems = ['Home', 'About', 'Portfolio', 'Service', 'News', 'Contact'];
 
+const NotificationPopup = ({ 
+  isVisible, 
+  message, 
+  type = 'success',
+  onClose 
+}: { 
+  isVisible: boolean; 
+  message: string; 
+  type?: 'success' | 'error';
+  onClose: () => void;
+}) => {
+  useEffect(() => {
+    if (isVisible) {
+      const timer = setTimeout(() => {
+        onClose();
+      }, 5000); // Auto close after 5 seconds
+      return () => clearTimeout(timer);
+    }
+  }, [isVisible, onClose]);
+
+  return (
+    <AnimatePresence>
+      {isVisible && (
+        <motion.div
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -50 }}
+          className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50"
+        >
+          <div className="relative">
+            <div className={`px-6 py-4 rounded-lg shadow-lg ${
+              type === 'success' 
+                ? 'bg-black dark:bg-white text-white dark:text-black' 
+                : 'bg-red-600 text-white'
+            }`}>
+              <div className="flex items-center space-x-3">
+                {type === 'success' ? (
+                  <svg 
+                    className="w-6 h-6" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M5 13l4 4L19 7" 
+                    />
+                  </svg>
+                ) : (
+                  <svg 
+                    className="w-6 h-6" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path 
+                      strokeLinecap="round" 
+                      strokeLinejoin="round" 
+                      strokeWidth={2} 
+                      d="M6 18L18 6M6 6l12 12" 
+                    />
+                  </svg>
+                )}
+                <p className="font-medium">{message}</p>
+              </div>
+              
+              {/* Progress bar */}
+              <motion.div
+                initial={{ width: "100%" }}
+                animate={{ width: "0%" }}
+                transition={{ duration: 5, ease: "linear" }}
+                className={`absolute bottom-0 left-0 h-1 ${
+                  type === 'success' 
+                    ? 'bg-white/20 dark:bg-black/20' 
+                    : 'bg-red-400'
+                }`}
+              />
+            </div>
+          </div>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
 function MainLayout() {
   const [activeItem, setActiveItem] = useState('Home');
   const [hideParticles, setHideParticles] = useState(false);
-  const [isDarkTheme, setIsDarkTheme] = useState(false);
+  const [isDarkTheme, setIsDarkTheme] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +124,15 @@ function MainLayout() {
   }>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [showScrollButton, setShowScrollButton] = useState(false);
+  const [notification, setNotification] = useState<{
+    show: boolean;
+    message: string;
+    type: 'success' | 'error';
+  }>({
+    show: false,
+    message: '',
+    type: 'success'
+  });
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', isDarkTheme);
@@ -201,12 +297,15 @@ function MainLayout() {
                 >
                   Get in Touch
                 </button>
-                <button 
-                  className="w-full sm:w-auto border-2 border-black dark:border-white text-black dark:text-white px-8 py-3.5 text-base rounded-lg hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300"
+                <a 
+                  href="https://drive.google.com/uc?export=download&id=1wvWKe7u7y9V8fw6PDJaoIm9WPjClYeD3"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full sm:w-auto border-2 border-black dark:border-white text-black dark:text-white px-8 py-3.5 text-base rounded-lg hover:bg-black hover:text-white dark:hover:bg-white dark:hover:text-black transition-all duration-300 text-center"
                   style={{ fontFamily: 'Researcher', fontWeight: 400 }}
                 >
                   Download CV
-                </button>
+                </a>
               </motion.div>
             </div>
           </div>
@@ -218,8 +317,28 @@ function MainLayout() {
         {/* About Section */}
         <section data-section="About Me" className="min-h-[100vh] space-y-8 relative">
           <h2 className="text-4xl font-bold mb-6 dark:text-white">About Me</h2>
+          
+          <div className="flex flex-wrap gap-4 mb-8">
+            <a 
+              href="https://www.skybersupport.me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center space-x-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-300"
+            >
+              <img src="/logo/sponser-skyber.svg" alt="SKYBER" className="h-6 w-6" />
+              <span className="font-medium text-black dark:text-white">Founder of SKYBER</span>
+            </a>
+            <a 
+              href="#"
+              className="flex items-center space-x-2 px-4 py-2 bg-black/5 dark:bg-white/5 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-all duration-300"
+            >
+              <img src="/logo/sponser-skyber.svg" alt="Amritanam" className="h-6 w-6" />
+              <span className="font-medium text-black dark:text-white">Co-founder of Amritanam</span>
+            </a>
+          </div>
+
           <p className="text-gray-600 dark:text-gray-300 text-base leading-relaxed">
-            I'm a passionate cybersecurity enthusiast, ethical hacker, and web developer with a strong background in AI and machine learning. As the founder of CyberXShield, I focus on securing users from cyber threats while developing innovative web solutions.
+            I'm a passionate <span className="font-medium text-black dark:text-white bg-[#3D3D3D]/5 dark:bg-[#3D3D3D]/20 px-2 py-0.5 rounded">cybersecurity enthusiast</span>, <span className="font-medium text-black dark:text-white bg-[#3D3D3D]/5 dark:bg-[#3D3D3D]/20 px-2 py-0.5 rounded">ethical hacker</span>, and <span className="font-medium text-black dark:text-white bg-[#3D3D3D]/5 dark:bg-[#3D3D3D]/20 px-2 py-0.5 rounded">web developer</span> with a strong background in AI and machine learning. As a tech entrepreneur, I focus on securing users from cyber threats while developing innovative web solutions.
             <br /><br />
             With a deep interest in programming, ethical hacking, and future technologies, I strive to create meaningful and impactful digital experiences. My work blends cutting-edge security practices with modern web development to deliver exceptional results, ensuring both functionality and protection in the ever-evolving digital landscape.
           </p>
@@ -267,7 +386,12 @@ function MainLayout() {
           </div>
 
           {/* Scroll Indicator */}
-          <div className="flex flex-col items-center mt-8">
+          <motion.div 
+            className="absolute left-1/2 -translate-x-1/2 bottom-[165px] z-10"
+            initial={{ opacity: 1 }}
+            animate={{ opacity: isScrolled ? 0 : 1 }}
+            transition={{ duration: 0.3 }}
+          >
             <motion.div
               animate={{ y: [0, 8, 0] }}
               transition={{ 
@@ -275,12 +399,12 @@ function MainLayout() {
                 repeat: Infinity,
                 ease: "easeInOut"
               }}
-              className="flex flex-col items-center"
+              className="flex flex-col items-center bg-white/80 dark:bg-black/80 backdrop-blur-sm px-4 py-2 rounded-full"
             >
-              <span className="text-sm text-gray-500 dark:text-gray-400 mb-2">Scroll for more</span>
-              <ChevronDown className="w-6 h-6 text-gray-500 dark:text-gray-400" />
+              <span className="text-sm text-gray-500 dark:text-gray-400 mb-1">Scroll for more</span>
+              <ChevronDown className="w-5 h-5 text-gray-500 dark:text-gray-400" />
             </motion.div>
-          </div>
+          </motion.div>
         </section>
 
         {/* Skills Section */}
@@ -386,6 +510,119 @@ function MainLayout() {
             </div>
         </section>
 
+        {/* Certifications Section */}
+        <section data-section="Certifications" className="space-y-8 mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold text-center dark:text-white mb-12">Certifications</h2>
+          
+          <div className="grid gap-8">
+            {[
+              {
+                title: 'CISCO Ethical Hacker NETCAD',
+                description: 'Advanced certification in ethical hacking and network security from Cisco Networking Academy.',
+                image: '/certificates/placeholder.png',
+                date: 'June 2025'
+              },
+              {
+                title: 'Career Essentials in Cybersecurity',
+                description: 'Comprehensive training in cybersecurity fundamentals and best practices.',
+                image: '/certificates/placeholder.png',
+                date: 'March 2024'
+              },
+              {
+                title: 'Generative AI Fundamentals',
+                description: 'In-depth study of generative AI technologies and applications.',
+                image: '/certificates/placeholder.png',
+                date: 'February 2024'
+              },
+              {
+                title: 'GitHub Foundations',
+                description: 'Core concepts of version control and collaborative development using GitHub.',
+                image: '/certificates/placeholder.png',
+                date: 'January 2024'
+              },
+              {
+                title: 'Cybersecurity Foundations',
+                description: 'Fundamental principles and practices of modern cybersecurity.',
+                image: '/certificates/placeholder.png',
+                date: 'December 2023'
+              },
+              {
+                title: 'Introduction to Large Language Models',
+                description: 'Comprehensive overview of LLM technologies and their applications.',
+                image: '/certificates/placeholder.png',
+                date: 'November 2023'
+              },
+              {
+                title: 'Virtual Simulation in Cybersecurity',
+                description: 'Hands-on experience with virtual cybersecurity environments and simulations.',
+                image: '/certificates/placeholder.png',
+                date: 'October 2023'
+              },
+              {
+                title: 'NVIDIA Course Completion Certificate',
+                description: 'Advanced training in GPU computing and parallel processing technologies.',
+                image: '/certificates/placeholder.png',
+                date: 'September 2023'
+              }
+            ].map((cert, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="group bg-white dark:bg-black/40 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+              >
+                <div className="flex flex-col md:flex-row">
+                  {/* Certificate Image */}
+                  <div className="w-full md:w-1/3 relative overflow-hidden">
+                    <img
+                      src={cert.image}
+                      alt={cert.title}
+                      className="w-full h-48 md:h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent md:bg-gradient-to-r" />
+                  </div>
+
+                  {/* Certificate Content */}
+                  <div className="w-full md:w-2/3 p-6 flex flex-col justify-between">
+                    <div>
+                      <h3 className="text-xl font-semibold mb-2 dark:text-white group-hover:text-black/70 dark:group-hover:text-white/70">
+                        {cert.title}
+                      </h3>
+                      <p className="text-gray-600 dark:text-gray-300 mb-4">
+                        {cert.description}
+                      </p>
+                      <p className="text-sm text-gray-500 dark:text-gray-400">
+                        Issued: {cert.date}
+                      </p>
+                    </div>
+                    
+                    <button 
+                      className="mt-4 inline-flex items-center space-x-2 text-black dark:text-white hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+                    >
+                      <span>View Certificate</span>
+                      <svg 
+                        className="w-4 h-4 transform group-hover:translate-x-1 transition-transform" 
+                        fill="none" 
+                        viewBox="0 0 24 24" 
+                        stroke="currentColor"
+                      >
+                        <path 
+                          strokeLinecap="round" 
+                          strokeLinejoin="round" 
+                          strokeWidth={2} 
+                          d="M14 5l7 7m0 0l-7 7m7-7H3" 
+                        />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                </motion.div>
+              ))}
+            </div>
+        </section>
+
         {/* Featured Projects Section */}
         <section data-section="Featured Projects" className="space-y-12">
           <motion.div
@@ -447,7 +684,7 @@ function MainLayout() {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: index * 0.2 }}
-                  className="group bg-white dark:bg-gray-700 rounded-xl overflow-hidden shadow-lg"
+                  className="group bg-white dark:bg-black/40 rounded-xl overflow-hidden shadow-lg"
                 >
                   <div className="relative h-48">
                     <img
@@ -466,7 +703,7 @@ function MainLayout() {
                     <p className="text-gray-600 dark:text-gray-300 mb-4">{project.description}</p>
                     <div className="flex flex-wrap gap-2">
                       {project.technologies.map((tech) => (
-                        <span key={tech} className="px-3 py-1 bg-gray-100 dark:bg-gray-600 text-gray-700 dark:text-gray-300 rounded-full text-sm">
+                        <span key={tech} className="px-3 py-1 bg-gray-100 dark:bg-black/40 text-gray-700 dark:text-gray-300 rounded-full text-sm">
                           {tech}
                         </span>
                       ))}
@@ -748,33 +985,82 @@ function MainLayout() {
     Service: (
       <section data-section="Services" className="space-y-8">
         <h2 className="text-4xl font-bold mb-6 dark:text-white">Services</h2>
-        <div className="grid gap-6">
+        <div className="grid gap-8">
           {[
             {
               title: 'Web Development',
-              description: 'Custom websites and web applications built with modern technologies.',
-              price: 'Starting from $2,000'
+              description: 'Custom websites and web applications built with modern technologies. Specializing in responsive design, performance optimization, and scalable architecture.',
+              price: 'Starting from $115',
+              features: ['Custom Web Applications', 'Responsive Design', 'SEO Optimization', 'Performance Tuning']
             },
             {
               title: 'UI/UX Design',
-              description: 'User-centered design solutions that enhance user experience.',
-              price: 'Starting from $1,500'
+              description: 'User-centered design solutions that enhance user experience. Creating intuitive interfaces with modern design principles and user research.',
+              price: 'Starting from $180',
+              features: ['User Research', 'Wireframing', 'Prototyping', 'Design Systems']
             },
             {
-              title: 'Mobile Development',
-              description: 'Native and cross-platform mobile applications.',
-              price: 'Starting from $3,000'
+              title: 'APP Development',
+              description: 'Native and cross-platform mobile applications. Building high-performance apps with seamless user experience across all devices.',
+              price: 'Starting from $130',
+              features: ['iOS & Android Apps', 'Cross-platform Development', 'App Store Optimization', 'Push Notifications']
             },
             {
-              title: 'Consulting',
-              description: 'Technical consulting and project management services.',
-              price: 'Starting from $100/hour'
+              title: 'Cyber Security',
+              description: 'Comprehensive security solutions to protect your digital assets. Implementing robust security measures and conducting thorough vulnerability assessments.',
+              price: 'Starting from $200',
+              features: ['Security Audits', 'Penetration Testing', 'Security Training', 'Incident Response']
+            },
+            {
+              title: 'Tech Consulting',
+              description: 'Expert guidance on technology strategy, architecture, and implementation. Helping businesses make informed decisions about their technology stack.',
+              price: 'Starting from $80',
+              features: ['Technical Strategy', 'Architecture Review', 'Team Training', 'Project Management']
+            },
+            {
+              title: 'Tech Support',
+              description: 'Reliable technical support services to keep your systems running smoothly. Quick resolution of technical issues and proactive maintenance.',
+              price: 'Starting from $50',
+              features: ['24/7 Support', 'System Maintenance', 'Issue Resolution', 'Performance Monitoring']
             }
           ].map((service, index) => (
-            <div key={index} className="p-6 bg-white dark:bg-gray-700 rounded-lg shadow-md hover:shadow-lg transition-shadow">
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">{service.title}</h3>
-              <p className="text-gray-600 dark:text-gray-300 mb-4">{service.description}</p>
-              <p className="text-gray-800 dark:text-gray-200 font-medium">{service.price}</p>
+            <div 
+              key={index} 
+              className="group flex flex-col md:flex-row gap-6 bg-white dark:bg-black/40 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+            >
+              {/* Left side with gradient background */}
+              <div className="w-full md:w-2/5 bg-gradient-to-br from-black/5 to-black/10 dark:from-white/5 dark:to-white/10 p-6 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-2xl font-semibold mb-3 dark:text-white">{service.title}</h3>
+                  <p className="text-gray-600 dark:text-gray-300">{service.description}</p>
+                </div>
+                <div className="mt-4">
+                  <p className="text-lg">
+                    <span className="text-gray-600 dark:text-gray-400">Starting from </span>
+                    <span className="font-semibold text-black dark:text-white bg-[#3D3D3D]/5 dark:bg-[#3D3D3D]/20 px-2 py-0.5 rounded">${service.price.split('$')[1]}</span>
+                  </p>
+                </div>
+              </div>
+
+              {/* Right side with features and button */}
+              <div className="w-full md:w-3/5 p-6 flex flex-col justify-between">
+                <div className="grid grid-cols-2 gap-3">
+                  {service.features.map((feature, idx) => (
+                    <div 
+                      key={idx}
+                      className="flex items-center space-x-2 text-gray-600 dark:text-gray-300"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-black/20 dark:bg-white/20"></div>
+                      <span>{feature}</span>
+                    </div>
+                  ))}
+                </div>
+                <button 
+                  className="mt-6 w-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors duration-300 font-medium"
+                >
+                  Request Service
+                </button>
+              </div>
             </div>
           ))}
         </div>
@@ -783,31 +1069,89 @@ function MainLayout() {
     News: (
       <section data-section="Latest News" className="space-y-8">
         <h2 className="text-4xl font-bold mb-6 dark:text-white">Latest News</h2>
-        <div className="space-y-6">
+        <div className="grid gap-8">
           {[
             {
               title: 'Launched New E-commerce Platform',
               date: 'March 15, 2024',
-              excerpt: 'Successfully delivered a cutting-edge e-commerce solution for a major retail client.'
+              excerpt: 'Successfully delivered a cutting-edge e-commerce solution for a major retail client, featuring advanced analytics, AI-powered recommendations, and seamless payment integration.',
+              category: 'Project Launch',
+              tags: ['E-commerce', 'AI', 'Analytics', 'Payment Gateway'],
+              image: 'https://images.unsplash.com/photo-1557821552-17105176677c?auto=format&fit=crop&q=80&w=300&h=200'
             },
             {
               title: 'Speaking at Tech Conference',
               date: 'March 10, 2024',
-              excerpt: 'Invited as a keynote speaker at the upcoming Web Development Summit 2024.'
+              excerpt: 'Invited as a keynote speaker at the upcoming Web Development Summit 2024. Will be sharing insights on modern web architecture and performance optimization techniques.',
+              category: 'Event',
+              tags: ['Conference', 'Web Development', 'Speaking', 'Architecture'],
+              image: 'https://images.unsplash.com/photo-1540575467063-178a50c2df87?auto=format&fit=crop&q=80&w=300&h=200'
             },
             {
               title: 'New Mobile App Release',
               date: 'March 5, 2024',
-              excerpt: 'Released a revolutionary fitness tracking app with AI-powered features.'
+              excerpt: 'Released a revolutionary fitness tracking app with AI-powered features, real-time health monitoring, and personalized workout recommendations.',
+              category: 'Product Release',
+              tags: ['Mobile App', 'Fitness', 'AI', 'Health Tech'],
+              image: 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&q=80&w=300&h=200'
             }
           ].map((post, index) => (
-            <div key={index} className="p-6 bg-white dark:bg-gray-700 rounded-lg shadow-md">
-              <h3 className="text-xl font-semibold mb-2 dark:text-white">{post.title}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">{post.date}</p>
-              <p className="text-gray-600 dark:text-gray-300">{post.excerpt}</p>
-              <button className="mt-4 text-black dark:text-white font-medium hover:underline">
-                Read More →
+            <div 
+              key={index} 
+              className="group flex flex-col md:flex-row gap-6 bg-white dark:bg-black/40 rounded-xl shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
+            >
+              {/* Left side with image */}
+              <div className="w-full md:w-2/5 relative overflow-hidden">
+                <div className="absolute inset-0">
+                  <img 
+                    src={post.image} 
+                    alt={post.title}
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-br from-black/50 to-black/20 group-hover:from-black/60 group-hover:to-black/30 transition-colors duration-300" />
+                </div>
+                <div className="relative p-6 h-full flex flex-col justify-between text-white">
+                  <span className="inline-block px-3 py-1 bg-white/20 backdrop-blur-sm rounded-full text-sm">
+                    {post.category}
+                  </span>
+                  <p className="text-sm font-medium">{post.date}</p>
+                </div>
+              </div>
+
+              {/* Right side with content */}
+              <div className="w-full md:w-3/5 p-6 flex flex-col justify-between">
+                <div>
+                  <h3 className="text-2xl font-semibold mb-3 dark:text-white group-hover:text-black/70 dark:group-hover:text-white/70 transition-colors duration-300">
+                    {post.title}
+                  </h3>
+                  <p className="text-gray-600 dark:text-gray-300 mb-4">
+                    {post.excerpt}
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    {post.tags.map((tag, idx) => (
+                      <span 
+                        key={idx}
+                        className="px-2 py-1 bg-black/5 dark:bg-white/5 text-sm text-gray-600 dark:text-gray-400 rounded"
+                      >
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <button 
+                  className="mt-6 w-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors duration-300 font-medium flex items-center justify-center group"
+                >
+                  <span>Read Full Article</span>
+                  <svg 
+                    className="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform duration-200" 
+                    fill="none" 
+                    viewBox="0 0 24 24" 
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
               </button>
+              </div>
             </div>
           ))}
         </div>
@@ -832,33 +1176,84 @@ function MainLayout() {
             ))}
           </div>
           
-            <form className="space-y-3">
+            <form className="space-y-3" onSubmit={async (e) => {
+              e.preventDefault();
+              const form = e.target as HTMLFormElement;
+              const formData = new FormData(form);
+              
+              try {
+                const response = await fetch('http://localhost:3001/api/send-email', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/json',
+                  },
+                  body: JSON.stringify({
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    message: formData.get('message'),
+                  }),
+                });
+
+                if (response.ok) {
+                  setNotification({
+                    show: true,
+                    message: 'Message sent successfully! We will get back to you soon.',
+                    type: 'success'
+                  });
+                  form.reset();
+                } else {
+                  throw new Error('Failed to send message');
+                }
+              } catch (error) {
+                setNotification({
+                  show: true,
+                  message: 'Failed to send message. Please try again later.',
+                  type: 'error'
+                });
+                console.error('Error:', error);
+              }
+            }}>
             <div>
               <input
                 type="text"
+                name="name"
+                required
                 placeholder="Your Name"
-                className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-black/40 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
               />
             </div>
             <div>
               <input
                 type="email"
+                name="email"
+                required
                 placeholder="Your Email"
-                className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-black/40 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
               />
             </div>
             <div>
               <textarea
+                name="message"
+                required
                 placeholder="Your Message"
                 rows={3}
-                className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
+                className="w-full px-4 py-2 rounded-lg border dark:border-gray-600 dark:bg-black/40 dark:text-white focus:outline-none focus:ring-2 focus:ring-black dark:focus:ring-white"
               ></textarea>
             </div>
             <button 
-              className="w-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors"
+              type="submit"
+              className="w-full bg-black dark:bg-white text-white dark:text-black px-6 py-3 rounded-lg hover:bg-gray-900 dark:hover:bg-gray-100 transition-colors flex items-center justify-center space-x-2"
               style={{ fontFamily: 'Researcher', fontWeight: 400 }}
             >
-              Send Message
+              <span>Send Message</span>
+              <svg 
+                className="w-5 h-5 animate-bounce" 
+                fill="none" 
+                viewBox="0 0 24 24" 
+                stroke="currentColor"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+              </svg>
             </button>
           </form>
         </div>
@@ -894,9 +1289,17 @@ function MainLayout() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-white dark:bg-gray-900 transition-colors duration-200">
+    <div className="min-h-screen flex flex-col bg-white dark:bg-black transition-colors duration-200">
+      {/* Add NotificationPopup */}
+      <NotificationPopup
+        isVisible={notification.show}
+        message={notification.message}
+        type={notification.type}
+        onClose={() => setNotification(prev => ({ ...prev, show: false }))}
+      />
+
       {/* Header - Updated for mobile */}
-      <header className="bg-white dark:bg-gray-900 z-50 px-3 sm:px-4 md:px-8 py-3 border-b dark:border-gray-800 transition-colors duration-200 sticky top-0 rounded-b-xl">
+      <header className="bg-white dark:bg-black z-50 px-3 sm:px-4 md:px-8 py-3 border-b dark:border-gray-800 transition-colors duration-200 sticky top-0 rounded-b-xl">
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           {/* Logo - Adjusted alignment */}
           <div className="flex items-center space-x-2">
@@ -916,7 +1319,7 @@ function MainLayout() {
           {/* Adjusted header buttons spacing */}
           <div className="flex items-center space-x-2 sm:space-x-4">
             {/* Navigation Menu */}
-            <nav className="hidden md:flex space-x-2 bg-gray-50 dark:bg-gray-800 p-2 rounded-lg">
+            <nav className="hidden md:flex space-x-2 bg-gray-50 dark:bg-black/40 p-2 rounded-lg">
               {menuItems.map((item) => (
                 <button
                   key={item}
@@ -939,7 +1342,7 @@ function MainLayout() {
 
             <button
               onClick={() => setIsDarkTheme(!isDarkTheme)}
-              className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-1.5 sm:p-2 rounded-full hover:bg-gray-100 dark:hover:bg-black/40 transition-colors"
               style={{ fontFamily: 'Researcher', fontWeight: 400 }}
             >
               {isDarkTheme ? (
@@ -950,7 +1353,7 @@ function MainLayout() {
             </button>
 
             <button
-              className="md:hidden p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800"
+              className="md:hidden p-1.5 sm:p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-black/40"
               onClick={toggleMobileMenu}
               style={{ fontFamily: 'Researcher', fontWeight: 400 }}
             >
@@ -976,7 +1379,7 @@ function MainLayout() {
                 className={`w-full text-left px-3 py-2.5 rounded-lg transition-colors ${
                   activeItem === item
                     ? 'bg-black text-white dark:bg-white dark:text-black'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-black/40'
                 }`}
                 style={{ 
                   fontFamily: 'Researcher',
@@ -1000,7 +1403,7 @@ function MainLayout() {
               <div className="absolute inset-0">
                 <div className="relative w-full h-full">
                   <img
-                    src="/clpfl.jpg"
+                    src="/profile-image.png"
                     alt="Portrait"
                     className="w-full h-full object-cover grayscale"
                     loading="eager"
@@ -1039,7 +1442,7 @@ function MainLayout() {
               <div className="absolute inset-0 m-4 mb-1">
                 <div className="relative w-full h-full rounded-[18px] overflow-hidden">
                   <img
-                    src="/clpfl.jpg"
+                    src="/profile-image.png"
                     alt="Portrait"
                     className="w-full h-full object-cover grayscale"
                     loading="eager"
@@ -1058,8 +1461,8 @@ function MainLayout() {
         </div>
 
         {/* Desktop Layout - Right Container */}
-        <div className="hidden md:block w-full md:w-1/2 md:ml-[50%] bg-white dark:bg-gray-900 overflow-hidden p-4 fixed top-[4.5rem] right-0 bottom-[50px]">
-          <div className="h-full bg-gray-50 dark:bg-gray-800 rounded-[12px] sm:rounded-[18px] transition-colors duration-200 overflow-hidden flex flex-col">
+        <div className="hidden md:block w-full md:w-1/2 md:ml-[50%] bg-white dark:bg-black overflow-hidden p-4 fixed top-[4.5rem] right-0 bottom-[50px]">
+          <div className="h-full bg-gray-50 dark:bg-black rounded-[12px] sm:rounded-[18px] transition-colors duration-200 overflow-hidden flex flex-col">
             {/* Sticky Header - Moved outside the scrollable container */}    
             <div 
               className={`sticky top-0 z-20 transition-all duration-300 ${
@@ -1068,7 +1471,7 @@ function MainLayout() {
                     : 'opacity-0 -translate-y-full'
                 }`}
               >
-                <div className="bg-gray-50 dark:bg-gray-800 p-4 border-b border-gray-200 dark:border-gray-700">
+                <div className="bg-gray-50 dark:bg-black p-4 border-b border-gray-200 dark:border-gray-700">
                   <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
                     {currentSection || activeItem}
                   </h2>
@@ -1084,7 +1487,7 @@ function MainLayout() {
               <div className="p-4 md:p-6 lg:p-8">
                 {isPageLoading ? (
                   // Page transition loader (circular)
-                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                  <div className="absolute inset-0 flex items-center justify-center bg-gray-50 dark:bg-black">
                     <div className="w-12 h-12 border-4 border-gray-200 dark:border-gray-700 border-t-black dark:border-t-white rounded-full animate-spin"></div>
                   </div>
                 ) : isInitialLoading ? (
@@ -1132,41 +1535,94 @@ function MainLayout() {
         )}
 
         {/* Desktop Footer - Fixed at bottom */}
-        <footer className="hidden md:block fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-800 px-8 py-4 transition-colors duration-200 z-10 rounded-t-xl">
+                  <footer className="hidden md:block fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t dark:border-gray-800 px-8 py-4 transition-colors duration-200 z-10 rounded-t-xl">
           <div className="flex justify-between items-center">
-            <div className="text-sm text-gray-600 dark:text-gray-300">Copyright © 2024</div>
+              <div className="flex items-center space-x-2">
+                <div className="text-sm text-gray-600 dark:text-gray-300">Copyright © {new Date().getFullYear()}</div>
+                <span className="text-gray-400">|</span>
+                <a 
+                  href="https://www.skybersupport.me/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center space-x-1 text-sm text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+                >
+                  <span>Powered by</span>
+                  <img src="/logo/sponser-skyber.svg" alt="SKYBER" className="h-4 w-4" />
+                  <span className="font-medium">SKYBER</span>
+                </a>
+              </div>
             <div className="flex space-x-6">
-              <a href="#" className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
-                <Facebook size={20} />
-              </a>
-              <a href="#" className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
-                <Twitter size={20} />
-              </a>
-              <a href="#" className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
+                <a 
+                  href="https://github.com/mrajaysingh"
+                  target="_blank"
+                  rel="noopener noreferrer" 
+                  className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                >
+                  <Github size={20} />
+                </a>
+                <a 
+                  href="https://www.linkedin.com/in/ajaysinghzi"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                >
+                  <Linkedin size={20} />
+                </a>
+                <a 
+                  href="https://www.instagram.com/_ajay_singh_._/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+                >
                 <Instagram size={20} />
-              </a>
-              <a href="#" className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
-                <Dribbble size={20} />
-              </a>
-              <a href="#" className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors">
-                <TikTok size={20} />
               </a>
             </div>
           </div>
         </footer>
 
         {/* Add mobile footer */}
-        <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-gray-900 border-t dark:border-gray-800 px-4 py-3 rounded-t-xl">
+        <footer className="md:hidden fixed bottom-0 left-0 right-0 bg-white dark:bg-black border-t dark:border-gray-800 px-4 py-3 rounded-t-xl">
+          <div className="flex flex-col items-center space-y-2">
           <div className="flex justify-center space-x-6">
-            {[Facebook, Twitter, Instagram, Dribbble, TikTok].map((Icon, index) => (
               <a
-                key={index}
-                href="#"
+              href="https://github.com/mrajaysingh"
+              target="_blank"
+              rel="noopener noreferrer"
                 className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
               >
-                <Icon size={18} />
+              <Github size={18} />
+            </a>
+            <a 
+              href="https://www.linkedin.com/in/ajaysinghzi"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+            >
+              <Linkedin size={18} />
+            </a>
+            <a 
+              href="https://www.instagram.com/_ajay_singh_._/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-800 dark:text-gray-200 hover:text-gray-600 dark:hover:text-gray-400 transition-colors"
+            >
+              <Instagram size={18} />
+            </a>
+            </div>
+            <div className="flex items-center justify-center space-x-2 text-xs">
+              <span className="text-gray-600 dark:text-gray-300">Copyright © {new Date().getFullYear()}</span>
+              <span className="text-gray-400">|</span>
+              <a 
+                href="https://www.skybersupport.me/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center space-x-1 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white transition-colors"
+              >
+                <span>Powered by</span>
+                <img src="/logo/sponser-skyber.svg" alt="SKYBER" className="h-3 w-3" />
+                <span className="font-medium">SKYBER</span>
               </a>
-            ))}
+            </div>
           </div>
         </footer>
       </main>
@@ -1178,6 +1634,9 @@ function App() {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
 
   useEffect(() => {
+    // Set initial dark theme
+    document.documentElement.classList.add('dark');
+    
     // Check if it's a mobile device
     const checkMobile = () => {
       setIsMobileDevice(window.innerWidth < 768 || 'ontouchstart' in window);
