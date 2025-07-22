@@ -1182,7 +1182,8 @@ function MainLayout() {
               const formData = new FormData(form);
               
               try {
-                const response = await fetch('http://localhost:3001/api/send-email', {
+                console.log('Sending email request...');
+                const response = await fetch('/api/send-email', {
                   method: 'POST',
                   headers: {
                     'Content-Type': 'application/json',
@@ -1194,6 +1195,10 @@ function MainLayout() {
                   }),
                 });
 
+                console.log('Response status:', response.status);
+                const data = await response.json();
+                console.log('Response data:', data);
+
                 if (response.ok) {
                   setNotification({
                     show: true,
@@ -1202,15 +1207,15 @@ function MainLayout() {
                   });
                   form.reset();
                 } else {
-                  throw new Error('Failed to send message');
+                  throw new Error(data.error || 'Failed to send message');
                 }
               } catch (error) {
+                console.error('Error details:', error);
                 setNotification({
                   show: true,
-                  message: 'Failed to send message. Please try again later.',
+                  message: error instanceof Error ? error.message : 'Failed to send message. Please try again later.',
                   type: 'error'
                 });
-                console.error('Error:', error);
               }
             }}>
             <div>
